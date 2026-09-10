@@ -1,0 +1,6 @@
+{
+  "name": "JOYPURHAT 5900 G.P.O",
+  "description": "Joypurhat 5900 G.P.O — জয়পুরহাট জেলার চাকরি, নিউজ, হাসপাতাল, সরকারি সেবা, জরুরি নম্বর, শিক্ষা, রক্তদাতা, পর্যটন ও প্রয়োজনীয় তথ্য এক জায়গায়।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
