@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "JOYPURHAT 5900 G.P.O",
+  "short_name": "Joypurhat5900",
+  "description": "Joypurhat 5900 G.P.O — জয়পুরহাট জেলার চাকরি, নিউজ, হাসপাতাল, সরকারি সেবা, জরুরি নম্বর, শিক্ষা, রক্তদাতা, পর্যটন ও প্রয়োজনীয় তথ্য এক জায়গায়।",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
