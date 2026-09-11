@@ -17,7 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { BloodGroup, Upazila } from '../types';
+import { BloodGroup, EmergencyContact, Upazila } from '../types';
 
 export const AdminModal: React.FC = () => {
   const {
@@ -65,7 +65,7 @@ export const AdminModal: React.FC = () => {
   // Form states for Emergency Contact
   const [emNameBn, setEmNameBn] = useState('');
   const [emNumber, setEmNumber] = useState('');
-  const [emCategory, setEmCategory] = useState('police');
+  const [emCategory, setEmCategory] = useState<EmergencyContact['category']>('police');
   const [emDescBn, setEmDescBn] = useState('');
 
   if (!isAdminModalOpen) return null;
@@ -129,6 +129,9 @@ export const AdminModal: React.FC = () => {
       salaryBn: jobSalaryBn,
       salaryEn: jobSalaryBn,
       deadline: jobDeadline,
+      descriptionBn: `${jobTitleBn} - ${jobCompanyBn}`,
+      descriptionEn: `${jobTitleBn} - ${jobCompanyBn}`,
+      postedDate: new Date().toISOString().split('T')[0],
       isLocal: true,
       applyUrl: jobApplyUrl
     });

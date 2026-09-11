@@ -21,6 +21,7 @@ import { MapSection } from './components/MapSection';
 import { Footer } from './components/Footer';
 import { SearchModal } from './components/SearchModal';
 import { AdminModal } from './components/AdminModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Bell, Flame, PhoneCall, Sparkles } from 'lucide-react';
 
 const MainPortal: React.FC = () => {
@@ -114,9 +115,11 @@ const MainPortal: React.FC = () => {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainPortal />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <MainPortal />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 

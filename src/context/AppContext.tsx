@@ -20,6 +20,65 @@ const ADMIN_HASH_HEX = 'bf223155671c5987a0004c4c04aaf6ff2534612907fea60502b7c20c
 const STORAGE_KEY = 'joypurhat_5900_portal_v1';
 const SESSION_AUTH_KEY = 'joypurhat_admin_auth_session';
 
+function safeGetLocalStorage(key: string): string | null {
+  try {
+    return typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, value);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function safeGetSessionStorage(key: string): string | null {
+  try {
+    return typeof window !== 'undefined' && window.sessionStorage ? window.sessionStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSetSessionStorage(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.setItem(key, value);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function safeRemoveSessionStorage(key: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function getInitialTheme(): Theme {
+  const saved = safeGetLocalStorage('joypurhat_theme') as Theme;
+  if (saved === 'dark' || saved === 'light') return saved;
+  try {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+  } catch {
+    // fallback
+  }
+  return 'light';
+}
+
 interface AppContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -89,16 +148,12 @@ async function sha256(message: string): Promise<string> {
 }
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Theme state
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('joypurhat_theme') as Theme;
-    if (saved === 'dark' || saved === 'light') return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  // Theme state with safe fallback
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-  // Language state
+  // Language state with safe fallback
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('joypurhat_lang') as Language;
+    const saved = safeGetLocalStorage('joypurhat_lang') as Language;
     return saved === 'en' ? 'en' : 'bn';
   });
 
@@ -108,44 +163,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Admin session authentication
+  // Admin session authentication with safe fallback
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return sessionStorage.getItem(SESSION_AUTH_KEY) === 'valid_session';
+    return safeGetSessionStorage(SESSION_AUTH_KEY) === 'valid_session';
   });
 
-  // Portal Data State with persistence
+  // Portal Data State with safe persistence
   const [data, setData] = useState<AppStateData>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = safeGetLocalStorage(STORAGE_KEY);
       if (saved) {
         return JSON.parse(saved);
       }
     } catch {
-      // ignore
+      // ignore parsing errors
     }
     return INITIAL_APP_DATA;
   });
 
   // Sync theme changes to document HTML class
   useEffect(() => {
-    localStorage.setItem('joypurhat_theme', theme);
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    safeSetLocalStorage('joypurhat_theme', theme);
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      if (theme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
     }
   }, [theme]);
 
   // Sync language changes
   useEffect(() => {
-    localStorage.setItem('joypurhat_lang', language);
+    safeSetLocalStorage('joypurhat_lang', language);
   }, [language]);
 
   // Sync data changes to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(data));
     } catch {
       // storage full or disabled
     }
@@ -166,7 +223,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const hash = await sha256(code);
       if (hash === ADMIN_HASH_HEX) {
         setIsAdminLoggedIn(true);
-        sessionStorage.setItem(SESSION_AUTH_KEY, 'valid_session');
+        safeSetSessionStorage(SESSION_AUTH_KEY, 'valid_session');
         return true;
       }
     } catch {
@@ -177,7 +234,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const adminLogout = () => {
     setIsAdminLoggedIn(false);
-    sessionStorage.removeItem(SESSION_AUTH_KEY);
+    safeRemoveSessionStorage(SESSION_AUTH_KEY);
   };
 
   // CRUD Implementations
